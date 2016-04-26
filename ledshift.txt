@@ -1,0 +1,27 @@
+#include <reg51f.h>
+#include <delay1.h>
+void main()
+{
+ 
+ 	unsigned int i;
+  	P0=0x01;
+ 	delay1(1000);
+  
+while(1)
+ {		  
+   	for(i=0;i<7;i++)
+   	{
+	P0=P0<<1;
+   	delay1(1000);
+  	}
+ 
+ 	P0=0x80;
+
+  	for(i=0;i<7;i++)
+   	{
+	P0=P0>>1;
+   	delay1(1000);	 
+  	}
+  
+  }
+}

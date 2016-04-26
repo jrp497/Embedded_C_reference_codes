@@ -1,0 +1,153 @@
+org 00h
+ljmp main
+
+org 000bh
+call incr
+call timerinit
+reti
+
+org 001bh
+call decr
+call timerinit
+reti
+
+
+org 30h
+main:
+
+ds1 equ 41h
+ds2 equ 42h
+ds3 equ 43h
+ds4 equ 44h
+ds5 equ 45h
+ 
+mov ds1,#00h
+mov ds2,#00h
+mov ds3,#00h
+mov ds4,#00h
+
+
+
+mov ie,#8ah
+call timerinit
+
+	
+up:	acall display
+	sjmp up
+
+
+timerinit:
+			mov tmod,#0ddh
+			;mov th0,#0ffh
+			mov th0,#00h
+			;mov th1,#0ffh
+			mov th1,#00h
+			setb tr0
+			setb tr1
+			ret			
+
+display:
+
+	mov p2,#0ffh
+	
+	
+	clr p2.0
+	mov a,ds1
+	mov dptr,#400h
+	movc a,@a+dptr
+	mov p0,a
+	acall delay
+	
+	clr p2.1
+	setb p2.0
+	mov a,ds2
+	mov dptr,#400h
+	movc a,@a+dptr
+	mov p0,a
+	acall delay
+	
+	clr p2.2
+	setb p2.1
+	mov a,ds3
+	mov dptr,#400h
+	movc a,@a+dptr
+	mov p0,a
+	acall delay
+	
+	clr p2.3
+	setb p2.2
+	mov a,ds4
+	mov dptr,#400h
+	movc a,@a+dptr
+	mov p0,a
+	acall delay
+	
+	ret
+			
+
+
+
+incr:
+		inc ds1
+		mov a,ds1
+		cjne a,#0ah,out
+		mov ds1,#00h
+		
+		inc ds2
+		mov a,ds2
+		cjne a,#0ah,out
+		mov ds2,#00h
+		
+		inc ds3
+		mov a,ds3
+		cjne a,#0ah,out
+		mov ds3,#00h
+		
+		inc ds4
+		mov a,ds4
+		cjne a,#0ah,out
+		mov ds4,#00h
+
+		out:
+		ret
+
+
+
+
+decr:
+		dec ds1
+		mov a,ds1	   
+		cjne a,#00h,out1
+		mov ds1,#0ah
+		
+		dec ds2
+		mov a,ds2
+		cjne a,#00h,out1
+		mov ds2,#0ah
+		
+		dec ds3
+		mov a,ds3
+		cjne a,#00h,out1
+		mov ds3,#0ah
+		
+		dec ds4
+		mov a,ds4
+		cjne a,#00h,out1
+		mov ds4,#0ah
+		
+		out1:
+		ret
+
+
+delay:
+		mov r7,#11d
+	l1:	mov r6,#0c8h
+		djnz r6,$
+		djnz r7,l1
+		ret
+
+
+org 400h
+db 0fch,60h,0dah,0f2h,66h,0b6h,0beh,0e0h,0feh,0f6h
+end
+

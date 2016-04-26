@@ -1,0 +1,347 @@
+#include <REG51F.H>
+//------------------//
+unsigned char ds1,ds2,ds3,ds4,b,scan_no,krcount,dcount,key_code;
+unsigned char Pattern[] = {0x0fc,0x60,0xda,0xf2,0x66,0xb6,
+							0xbe,0xe0,0xfe,0xe6,0xee,0x3e,0x9c,
+							0x7a,0x9e,0x8e,0x00,0xff};
+unsigned char Pattern1[]="0123456789ABCDEF";
+//------------------//
+sbit sl1=P2^0;
+sbit sl2=P2^1;
+sbit sl3=P2^2;
+sbit sl4=P2^3;
+
+sbit krl1=P2^4;
+sbit krl2=P2^5;
+sbit krl3=P2^6;
+sbit krl4=P2^7;
+
+sbit buz=P1^5;
+//------------------//
+bit key_ready,nkp;
+bit c;				 
+bit start_buzzer;
+bit start_inc;
+bit start_dec;
+bit start_rot;
+//------------------//
+void test_display();
+void isr_t0();
+void init_();	
+void init_keypad();	
+void init_timer0();
+void scanner();
+void buzzer();
+void k();
+void debounce();
+void out_debounce();
+void r();
+void key_release();
+void key_proccess();
+void decrement();
+void increment();
+void rotate();
+void delay(unsigned char time);
+//------------------//
+void main()	   
+{
+	init_();	
+	EA=1;
+	ds1=ds2=ds3=ds4='0';
+	start_inc=1;
+	//delay(3000);
+l1_main:
+	while(key_ready!=0);
+	key_code=Pattern1[key_code];
+	key_proccess();
+	goto l1_main;
+	
+}
+//------------------//
+void test_display()
+{
+	ds1=15+2;
+	ds2=15+2;
+	ds3=15+2;
+	ds4=15+2;
+	delay(1000);
+	ds1=15+1;
+	ds2=15+1;
+	ds3=15+1;
+	ds4=15+1;
+	delay(1000);
+}
+//------------------//
+void isr_t0()interrupt 1
+{
+	init_timer0();
+	buzzer();
+	scanner();
+}
+//------------------//
+void init_()
+{
+	init_timer0();
+	test_display();
+	init_keypad();
+	delay(1000);
+}
+//------------------//
+void init_keypad()
+{
+	krl1 = krl2 = krl3 = krl4 = 1;
+	scan_no=0;
+	dcount=33;
+	krcount=32;
+	key_ready=0;
+	nkp=0;
+	start_buzzer=0;
+}
+//------------------//
+void init_timer0()
+{
+	TMOD |= 0x01;
+	TL0=0x66;
+	TH0=0xfc;
+	TR0=1;
+	ET0=1;
+}
+//------------------//
+void scanner()
+{
+	switch(scan_no)
+	{
+		case 0: sl1=0;
+				sl2=sl3=sl4=1;
+				P0=Pattern1[ds1-'0'];
+				c=krl1;
+				k();
+				scan_no++;
+				break;
+		case 1: c=krl2;
+				k();
+				scan_no++;
+				break;
+		case 2: c=krl3;
+				k();
+				scan_no++;
+				break;
+		case 3: c=krl4;
+				k();
+				scan_no++;
+				P0=0;
+				break;
+				
+		case 4: sl1=sl3=sl4=1;
+				sl2=0;
+				P0=Pattern1[ds2-'0'];
+				c=krl1;
+				k();
+				scan_no++;
+				break;
+		case 5: c=krl2;
+				k();
+				scan_no++;
+				break;
+		case 6: c=krl3;
+				k();
+				scan_no++;
+				break;
+		case 7: c=krl4;
+				k();
+				scan_no++;
+				P0=0;
+				break;
+
+		case 8: sl1=sl2=sl4=1;
+				sl3=0;
+				P0=Pattern1[ds3-'0'];
+				c=krl1;
+				k();
+				scan_no++;
+				break;
+		case 9: c=krl2;
+				k();
+				scan_no++;
+				break;
+		case 10:c=krl3;
+				k();
+				scan_no++;
+				break;
+		case 11:c=krl4;
+				k();
+				scan_no++;
+				P0=0;
+				break;
+
+		case 12:sl1=sl2=sl3=1;
+				sl4=0;
+				P0=Pattern1[ds4-'0'];
+				c=krl1;
+				k();
+				scan_no++;
+				break;
+		case 13:c=krl2;
+				k();
+				scan_no++;
+				break;
+		case 14:c=krl3;
+				k();
+				scan_no++;
+				break;
+		case 15:c=krl4;
+				k();
+				scan_no=0;
+				P0=0;
+				break;
+	}
+}
+//------------------//
+void buzzer()
+{
+	if(start_buzzer)
+		buz = ~ buz;
+}
+//------------------key part------------------//
+void k()
+{
+	if(key_ready)
+		out_debounce();
+	else if(dcount!=33)
+			debounce();
+	else if(!c)
+	{
+		dcount--;
+		key_code=scan_no;
+	}
+}
+//------------------//
+void debounce()
+{
+	dcount--;
+	if(dcount==0)
+	{
+		if(!c)
+			key_ready=start_buzzer=1;
+		dcount=33;	
+	}
+}					 
+//------------------//
+void out_debounce()
+{
+	if(c)
+		r();
+	else
+		krcount=32;
+}
+//------------------//
+void r()
+{
+	krcount--;
+	if(krcount==0)
+	{
+		nkp=1;
+		start_buzzer=0 ;
+		krcount=32;
+	}
+}				   
+//------------------//
+void key_release()
+{
+	while(nkp==0)  ;
+		key_ready=nkp=0;		
+}					  
+//------------------//
+void key_proccess()
+{
+	switch(key_code)
+	{
+		case 'A': start_inc=1;
+				  increment();
+				  key_release();
+				  break;
+		case 'B': start_dec=1;
+				  decrement();
+				  key_release();
+				  break;
+		case 'C': start_rot=1;
+				  rotate();
+				  key_release();
+				  break;
+		case 'D': start_inc=start_dec=start_rot=0;
+				  ds1=ds2=ds3=ds4=0;
+				  key_release();		  			  	
+	}	
+}
+//------------------//
+//--------------end of key part--------------//
+void decrement()
+{
+	ds1--;
+	if(ds1<0)
+	{ 
+		ds1=9;
+		ds2--;
+    	if(ds2<0)
+    	{
+			ds2=9;
+			ds3--;				
+			if(ds3<0)
+			{
+				ds3=9;
+				ds4--;
+				if(ds4<=0)
+				{
+					ds1=9;
+					ds2=9;
+					ds3=9;
+					ds4=9;
+				}
+			}
+		}
+	}
+}
+//------------------//
+void rotate()
+{
+	b=ds4;
+	ds4=ds3;
+	ds3=ds2;
+	ds2=ds1;
+	ds1=b;
+}
+//------------------//
+void increment()
+{
+	ds1++;
+	if(ds1>9)
+	{ 
+		ds1=0;
+		ds2++;
+	}
+    if(ds2>9)
+	{
+		ds2=0;
+		ds3++;
+	}
+	if(ds3>9)
+	{
+		ds3=0;
+		ds4++;
+	}
+	if(ds4>9)
+	{
+		ds1=0;
+		ds2=0;
+		ds3=0;
+		ds4=0;
+	}
+}
+//------------------//
+void delay(unsigned char time) 
+{
+	unsigned int i,j;	
+	for(i=0;i<time;i++)
+		for(j=0;j<120;j++);
+}
+//------------------//

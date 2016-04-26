@@ -1,0 +1,32 @@
+#include <REG51F.H>
+void tinit();
+void start();
+void delay(unsigned int time);
+unsigned char n[]={'j','a','y',' ','p','a','t','e','l'};
+void main()
+{
+	tinit();
+	start();
+	while(1);	
+}
+void start()
+{
+	unsigned int i;
+	for(i=0;i<9;i++)
+	{
+		SBUF=n[i];
+		while(TI==0);
+	  	TI=0;
+	}	
+	
+	
+}
+
+void tinit()
+{
+	TMOD = 0x20;
+	TH1 = -3;
+	SCON = 0x50;
+	TR1 = 1;
+}
+

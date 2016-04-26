@@ -1,0 +1,43 @@
+#include <reg51f.h>
+#include <delay.h>
+#include<display.h>
+void rotate();
+
+void main()
+{
+	
+  unsigned int k;
+  {
+  ds0=0xfc;
+  ds1=0x60;
+  ds2=0x0da;
+  ds3=0x0f2;
+
+  while(1)
+  {
+  
+  for(k=0;k<30;k++)
+ {
+  display();
+ }
+  rotate();
+  
+  }
+
+ }
+}
+  
+  
+  
+  void rotate()
+{
+unsigned int ds4;
+ds4=ds0;
+ds0=ds1;
+ds1=ds2;
+ds2=ds3;
+ds3=ds4;
+}  
+
+
+	

@@ -1,0 +1,140 @@
+#include <reg51f.h>
+#include <delay.h>
+#include<display1.h>
+void inc();
+void dec();
+void init();
+void condition();
+sbit a = TCON^0;
+sbit b = TCON^2;
+sbit c = IE^7;
+sbit d = IE^0;
+sbit e = IE^2;
+
+void isr0() interrupt 0
+	{
+		 inc();
+		 
+	}
+
+
+
+
+void isr1() interrupt 2
+	{
+		 
+		 dec();
+		 
+	}
+
+
+
+
+void main()
+{
+
+init();
+  
+while(1)
+
+		{
+			display1();
+			condition();
+		}
+
+}
+
+  
+
+void init()
+{
+	ds0=0x00;
+  	ds1=0x00;
+  	ds2=0x00;
+  	ds3=0x00;
+  	display1();
+  	a=1;
+  	b=1;
+	c=1;
+	d=1;
+}
+
+
+
+
+
+
+void inc()
+{
+ds0++;
+if(ds0==10)
+
+{
+	ds0=0;
+	ds1++;
+	if(ds1==10)
+			{
+		   	ds1=0;
+			ds2++;
+			if(ds2==10)
+				{
+				 ds2=0;
+				ds3++;
+				if(ds3==10)
+					
+				 	{
+					  ds0=0x00;
+					  ds1=0x00;
+					  ds2=0x00;
+					  ds3=0x00;
+					}
+				}
+		}
+}
+}
+
+
+void dec()
+{
+ds0--;
+if(ds0==-1)
+
+{
+	ds0=0x09;
+	ds1--;
+	if(ds1==-1)
+			{
+		   	ds1=0x09;
+			ds2--;
+			if(ds2==-1)
+				{
+				 ds2=0x09;
+				ds3--;
+				if(ds3==-1)
+					
+				 	{
+					  ds0=0x09;
+					  ds1=0x09;
+					  ds2=0x09;
+					  ds3=0x09;
+					}
+				}
+		}
+}
+}
+
+
+
+void condition()
+{
+	if(ds3==0&&ds2==0&&ds1==0&&ds0==0)
+		{
+			e=0;
+			
+		}
+	else
+		{
+			e=1;
+		
+		}
+}

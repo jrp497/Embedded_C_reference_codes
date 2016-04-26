@@ -1,0 +1,71 @@
+;receive
+
+
+
+	  org 00h
+
+		mov tmod ,#20h
+		mov th1,#-3
+		mov scon,#50h
+		setb tr1
+
+main:
+		
+		mov r5,#62d
+		
+up:		acall display
+		djnz r5,up
+		sjmp main
+
+ receive:
+		setb scon.4
+ 		jnb ri,$
+		mov a,sbuf
+		clr ri
+		clr scon.4
+		ret
+
+
+
+	 ret
+
+display:
+	
+	
+	mov p2,#0ffh	
+
+	clr p2.0
+	acall receive
+	mov p0,a
+		
+	clr p2.1
+	setb p2.0
+	acall receive
+	mov p0,a
+	
+	clr p2.2
+	setb p2.1
+	acall receive
+	mov p0,a
+		
+	clr p2.3
+	setb p2.2
+	acall receive
+	mov p0,a
+	ret
+
+
+end
+
+
+
+
+
+
+
+;transmit
+
+
+
+
+

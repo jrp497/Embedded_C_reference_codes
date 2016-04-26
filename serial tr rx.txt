@@ -1,0 +1,36 @@
+org 00h
+sjmp main
+
+uart:
+	mov tmod,#20h
+	mov th1,#-3
+	mov scon,#50h
+	setb tr1
+	ret
+
+main:
+
+org 30h
+
+
+	call uart
+	call tx
+	call rx
+	sjmp main 
+	
+rx:
+		jnb ri,$
+		mov a,sbuf
+		clr ri
+		mov p0,a
+		ret
+
+
+tx:
+	mov sbuf,a
+	jnb ti,$
+	clr ti
+	ret
+
+	
+end
