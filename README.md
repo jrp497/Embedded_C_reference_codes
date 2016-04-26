@@ -9,4 +9,4 @@ These are just the codes in Embedded c that could be built into 8051 controller 
 
 For more information on interfacing with 8051 controller "The 8051 Microcontroller and Embedded Systems by Muhammad Ali Mazidi  (Author), Janice G. Mazidi (Author), Rolin D. McKinlay (Author)" book would be a good reference.
 
-The codes in this repository have been used in the projects stated in repositories  
+The codes in this repository have been used as reference in the projects stated in repositories car_parking_project and multivaiable_rs485.  
